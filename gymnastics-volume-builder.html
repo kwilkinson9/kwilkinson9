@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="burgundy">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+<title>Gymnastics Volume Builder</title>
+<style>
+  /* ============================= THEME TOKENS ============================= */
+  :root{
+    --burgundy:#5C1A24;
+    --burgundy-deep:#43121A;
+    --red-mid:#A8324A;
+    --red-mid-dark:#8B2739;
+    --blush:#FBF1EC;
+    --blush-card:#FFFFFF;
+    --charcoal:#2B2320;
+    --charcoal-soft:#5B4E49;
+    --green:#3F7D4F;
+    --green-bg:#E4F2E7;
+    --amber:#B8791F;
+    --amber-bg:#FBEBD3;
+    --line:#E9DCD6;
+    --shadow: 0 2px 10px rgba(67,18,26,0.10);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  html[data-theme="classic"]{
+    --burgundy:#7A1F1F; --burgundy-deep:#5A1414; --red-mid:#C23B3B; --red-mid-dark:#A02E2E;
+  }
+  html[data-theme="rose"]{
+    --burgundy:#7A2740; --burgundy-deep:#591C30; --red-mid:#C24A72; --red-mid-dark:#A23A5C;
+  }
+  html[data-theme="crimson"]{
+    --burgundy:#4A0F16; --burgundy-deep:#33090E; --red-mid:#8E1F2B; --red-mid-dark:#711722;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; overscroll-behavior-y: none; }
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background:var(--blush);
+    color:var(--charcoal);
+    padding-bottom: 84px;
+    min-height:100vh;
+    width:100%;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{
+    font-family: Georgia, "Times New Roman", serif;
+    margin:0 0 6px 0;
+    letter-spacing:0.2px;
+  }
+  .eyebrow{
+    font-family:-apple-system,sans-serif;
+    text-transform:uppercase;
+    font-weight:800;
+    font-size:11px;
+    letter-spacing:1.6px;
+    color: var(--red-mid);
+  }
+  button{ font-family:inherit; }
+  input,select,textarea{ font-family:inherit; font-size:16px; }
+
+  /* ============================= HEADER ============================= */
+  .app-header{
+    background: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-deep) 100%);
+    color:#fff;
+    padding: 18px 18px 22px 18px;
+    position: sticky; top:0; z-index:50;
+    box-shadow: var(--shadow);
+  }
+  .app-header .brand{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .app-header h1{ color:#fff; font-size:20px; margin:0; }
+  .app-header .tag{ font-size:11px; opacity:0.85; text-transform:uppercase; letter-spacing:1.4px; margin-top:2px;}
+  .save-pill{
+    display:flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.28);
+    border-radius:20px;
+    padding:6px 12px;
+    font-size:11.5px;
+    white-space:nowrap;
+  }
+  .save-dot{ width:8px;height:8px;border-radius:50%; background:#7FE39C; box-shadow:0 0 0 3px rgba(127,227,156,0.25); }
+  .save-dot.saving{ background:#F4C56B; }
+
+  /* ============================= LAYOUT ============================= */
+  main{ padding: 14px 14px 20px 14px; max-width:640px; margin:0 auto; width:100%; }
+  .tab-panel{ display:none; animation: fadein .18s ease; }
+  .tab-panel.active{ display:block; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  .card{
+    background:var(--blush-card);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow: var(--shadow);
+    border:1px solid var(--line);
+    margin-bottom:14px;
+  }
+  .card h2{ font-size:17px; color:var(--burgundy); }
+  .card h3{ font-size:15px; color:var(--burgundy-deep); }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; }
+  .row > *{ flex:1; min-width:120px; }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-size:12.5px; font-weight:700; color:var(--charcoal-soft); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.4px; }
+  select, input[type=text], input[type=number], input[type=date], textarea{
+    width:100%; padding:11px 12px; border-radius:var(--radius-sm); border:1.5px solid var(--line);
+    background:#fff; color:var(--charcoal); min-height:44px;
+  }
+  textarea{ min-height:70px; resize:vertical; }
+  input:focus, select:focus, textarea:focus, button:focus-visible{
+    outline: 3px solid var(--red-mid); outline-offset:1px;
+  }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:13px 16px; border-radius:var(--radius-sm); border:none;
+    font-weight:700; font-size:15px; cursor:pointer; min-height:48px;
+    transition: transform .05s ease;
+  }
+  .btn:active{ transform: scale(0.97); }
+  .btn-primary{ background:var(--red-mid); color:#fff; }
+  .btn-primary:hover{ background:var(--red-mid-dark); }
+  .btn-secondary{ background:#fff; color:var(--burgundy); border:1.5px solid var(--burgundy); }
+  .btn-ghost{ background:var(--blush); color:var(--burgundy-deep); border:1px solid var(--line); }
+  .btn-danger{ background:#fff; color:#A02020; border:1.5px solid #A02020; }
+  .btn-block{ width:100%; }
+  .btn-sm{ padding:8px 12px; font-size:13px; min-height:36px; }
+
+  .chip-group{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    padding:10px 14px; border-radius:999px; border:1.5px solid var(--line); background:#fff;
+    font-size:13.5px; font-weight:600; color:var(--charcoal-soft); cursor:pointer; min-height:40px;
+  }
+  .chip.selected{ background:var(--red-mid); border-color:var(--red-mid); color:#fff; }
+  .chip.scale-btn{ min-width:40px; text-align:center; padding:10px 0; flex:1; }
+
+  .badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:0.3px; text-transform:uppercase;}
+  .badge-green{ background:var(--green-bg); color:var(--green); }
+  .badge-amber{ background:var(--amber-bg); color:var(--amber); }
+  .badge-neutral{ background:var(--blush); color:var(--charcoal-soft); border:1px solid var(--line); }
+
+  .divider{ height:1px; background:var(--line); margin:14px 0; border:none; }
+
+  .set-row{ display:flex; gap:8px; align-items:center; background:var(--blush); border-radius:var(--radius-sm); padding:8px; margin-bottom:8px; flex-wrap:wrap; }
+  .set-row .set-num{ font-weight:800; color:var(--burgundy); width:22px; text-align:center; }
+  .set-row input[type=number]{ min-width:64px; flex:1; }
+  .set-row label.mini{ font-size:10.5px; text-transform:uppercase; color:var(--charcoal-soft); display:block; margin-bottom:2px;}
+  .set-row .set-check{ display:flex; align-items:center; gap:4px; font-size:12px; }
+  .remove-set{ background:none; border:none; color:#A02020; font-size:20px; cursor:pointer; padding:4px 8px; }
+
+  .warn-banner{ background:var(--amber-bg); color:#7A5310; border:1px solid #E9C888; border-radius:var(--radius-sm); padding:12px; font-size:13.5px; font-weight:600; margin-bottom:12px; }
+  .stop-banner{ background:#FBE3E3; color:#8B1F1F; border:1px solid #EBB0B0; border-radius:var(--radius-sm); padding:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; }
+  .safety-note{ font-size:11.5px; color:var(--charcoal-soft); background:var(--blush); border-radius:var(--radius-sm); padding:10px 12px; border:1px dashed var(--line); }
+
+  /* Bottom nav */
+  .bottom-nav{
+    position:fixed; bottom:0; left:0; right:0; z-index:60;
+    background:#fff; border-top:1px solid var(--line);
+    display:flex; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)) 4px;
+    box-shadow: 0 -2px 12px rgba(67,18,26,0.10);
+  }
+  .nav-btn{
+    flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:6px 2px; color:var(--charcoal-soft); font-size:10.5px; font-weight:700; cursor:pointer; border-radius:10px;
+  }
+  .nav-btn .ic{ font-size:19px; line-height:1; }
+  .nav-btn.active{ color:var(--red-mid); background:var(--blush); }
+
+  /* progress ring */
+  .ring-wrap{ display:flex; align-items:center; gap:14px; }
+  .ring{ width:74px; height:74px; flex-shrink:0; }
+  .ring-label{ font-size:12.5px; color:var(--charcoal-soft); }
+  .ring-num{ font-size:20px; font-weight:800; color:var(--burgundy); }
+
+  /* week card */
+  .week-card summary{ list-style:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+  .week-card summary::-webkit-details-marker{ display:none; }
+  .week-card{ background:var(--blush-card); border-radius:var(--radius); border:1px solid var(--line); box-shadow:var(--shadow); margin-bottom:12px; padding:14px 16px; }
+  .week-title-row{ display:flex; align-items:center; gap:10px; }
+  .week-num-badge{ width:34px;height:34px;border-radius:50%; background:var(--burgundy); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; flex-shrink:0; }
+  .sess-block{ background:var(--blush); border-radius:var(--radius-sm); padding:10px 12px; margin-top:10px; }
+  .sess-block .sess-head{ display:flex; justify-content:space-between; align-items:center; }
+  .progress-bar-track{ height:8px; background:var(--line); border-radius:4px; overflow:hidden; margin-top:6px; }
+  .progress-bar-fill{ height:100%; background:var(--red-mid); border-radius:4px; }
+
+  /* history */
+  .hist-card{ padding:14px; }
+  .hist-top{ display:flex; justify-content:space-between; align-items:flex-start; }
+  .hist-stats{ display:flex; gap:14px; margin-top:8px; font-size:12.5px; color:var(--charcoal-soft); flex-wrap:wrap; }
+  .hist-stats b{ color:var(--charcoal); }
+  .hist-actions{ display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+
+  /* analytics */
+  .chart-card svg{ width:100%; height:auto; display:block; }
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .stat-tile{ background:var(--blush); border-radius:var(--radius-sm); padding:12px; text-align:center; border:1px solid var(--line); }
+  .stat-tile .num{ font-size:20px; font-weight:800; color:var(--burgundy); }
+  .stat-tile .lbl{ font-size:10.5px; text-transform:uppercase; color:var(--charcoal-soft); font-weight:700; letter-spacing:0.4px; margin-top:3px; }
+
+  /* milestones */
+  .milestone-row{ display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line); }
+  .milestone-row:last-child{ border-bottom:none; }
+  .milestone-check{ width:26px; height:26px; border-radius:50%; border:2px solid var(--line); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:14px; color:#fff; }
+  .milestone-check.done{ background:var(--green); border-color:var(--green); }
+  .milestone-text{ flex:1; }
+  .milestone-text .m-date{ font-size:11px; color:var(--charcoal-soft); }
+  .m-title-done{ text-decoration: line-through; color: var(--charcoal-soft); }
+
+  .toast{
+    position:fixed; bottom:96px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--charcoal); color:#fff; padding:11px 18px; border-radius:999px; font-size:13.5px; font-weight:600;
+    box-shadow:0 4px 16px rgba(0,0,0,0.25); z-index:100; opacity:0; pointer-events:none; transition: all .25s ease; max-width:88%; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .celebrate-banner{
+    background: linear-gradient(90deg, var(--green) 0%, #5EA76D 100%);
+    color:#fff; border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:12px;
+    font-weight:700; font-size:14px; display:flex; align-items:center; gap:10px; animation: pop .3s ease;
+  }
+  @keyframes pop{ from{ transform:scale(0.92); opacity:0;} to{transform:scale(1); opacity:1;} }
+
+  .modal-overlay{ position:fixed; inset:0; background:rgba(43,35,32,0.55); z-index:200; display:none; align-items:flex-end; justify-content:center; }
+  .modal-overlay.show{ display:flex; }
+  .modal-sheet{ background:#fff; border-radius:20px 20px 0 0; padding:20px; width:100%; max-width:640px; max-height:85vh; overflow-y:auto; }
+
+  .empty-state{ text-align:center; padding:36px 14px; color:var(--charcoal-soft); }
+  .empty-state .ic{ font-size:34px; margin-bottom:8px; }
+
+  .search-bar{ display:flex; gap:8px; margin-bottom:12px; }
+  .filter-row{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:10px; }
+  .filter-row .chip{ white-space:nowrap; }
+
+  fieldset{ border:none; padding:0; margin:0; }
+  .visually-hidden{ position:absolute; width:1px;height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  a{ color: var(--red-mid); }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div>
+      <h1>Gymnastics Volume Builder</h1>
+      <div class="tag">8-Week Pull-Up &amp; Toes-to-Bar Program</div>
+    </div>
+    <div class="save-pill" id="savePill" aria-live="polite">
+      <span class="save-dot" id="saveDot"></span>
+      <span id="saveText">Saved</span>
+    </div>
+  </div>
+</header>
+
+<main id="app">
+
+  <!-- ============ TODAY TAB ============ -->
+  <section id="tab-today" class="tab-panel active" aria-labelledby="nav-today"></section>
+
+  <!-- ============ PROGRAM TAB ============ -->
+  <section id="tab-program" class="tab-panel" aria-labelledby="nav-program"></section>
+
+  <!-- ============ HISTORY TAB ============ -->
+  <section id="tab-history" class="tab-panel" aria-labelledby="nav-history"></section>
+
+  <!-- ============ ANALYTICS TAB ============ -->
+  <section id="tab-analytics" class="tab-panel" aria-labelledby="nav-analytics"></section>
+
+  <!-- ============ MILESTONES TAB ============ -->
+  <section id="tab-milestones" class="tab-panel" aria-labelledby="nav-milestones"></section>
+
+  <!-- ============ SETTINGS TAB ============ -->
+  <section id="tab-settings" class="tab-panel" aria-labelledby="nav-settings"></section>
+
+</main>
+
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="nav-btn active" id="nav-today" data-tab="today" onclick="switchTab('today')"><span class="ic">🏋️</span>Today</button>
+  <button class="nav-btn" id="nav-program" data-tab="program" onclick="switchTab('program')"><span class="ic">📅</span>Program</button>
+  <button class="nav-btn" id="nav-history" data-tab="history" onclick="switchTab('history')"><span class="ic">📖</span>History</button>
+  <button class="nav-btn" id="nav-analytics" data-tab="analytics" onclick="switchTab('analytics')"><span class="ic">📊</span>Stats</button>
+  <button class="nav-btn" id="nav-milestones" data-tab="milestones" onclick="switchTab('milestones')"><span class="ic">🏅</span>Milestones</button>
+  <button class="nav-btn" id="nav-settings" data-tab="settings" onclick="switchTab('settings')"><span class="ic">⚙️</span>Settings</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-sheet" id="modalSheet"></div>
+</div>
+
+<script>
+/* =========================================================================
+   GYMNASTICS VOLUME BUILDER
+   Single-file, offline-first tracker. All state lives in localStorage under
+   the single key GVB_STORAGE_KEY. Every mutation calls saveData() which
+   serializes the entire state object at once (simple + reliable for
+   localStorage, and keeps "last saved" accurate for every field).
+   ========================================================================= */
+
+const GVB_STORAGE_KEY = 'gvbData_v1';
+
+/* ---------- Static reference data ---------- */
+const PULLUP_MODS = ['Full kipping pull-up','Jumping pull-up','Banded pull-up','Kip swing only','Other'];
+const T2B_MODS = ['Full toes-to-bar','Toes near bar','Knees-to-elbows','Hanging knee raise','Beat swings','Other'];
+const DRILL_LIST = ['Beat swings','Hollow-to-arch swings','Kip timing drill','Lat activation drill','Box-assisted pull-up drill','Toes-to-bar single-rep reset drill','Knees-to-elbows','Straight-leg raises','Low-bar toes-to-target','Grip regrip practice'];
+const ACCESSORY_LIST = ['Hollow hold','Arch hold','Dead hang','Scapular pull-ups','Strict hanging knee raises','Banded lat pulldowns','Controlled negative pull-ups','Grip carry','Other custom exercise'];
+const CLASS_DEMAND = ['Light','Moderate','Hard','Very hard','Gymnastics-heavy'];
+const READINESS = ['Exhausted','Very tired','Tired','Okay','Good','Very good','Excellent'];
+
+/* 8-week program prescription. Numbers are starting-point suggestions per the
+   brief; the adaptive engine nudges these based on performance. */
+const PROGRAM = [
+ { week:1, objective:'Establish consistency.', sessions:{
+    A:{ label:'Session A · EMOM Intro', pullup:{sets:5,reps:2,rest:60,note:'5-minute EMOM of 2 reps'}, t2b:{sets:5,reps:1,rest:60,note:'5-minute EMOM of 1 rep or best modification'}, extra:[{type:'drill',name:'Beat swings',sets:3,target:'5 reps'}] },
+    B:{ label:'Session B · Controlled Volume', pullup:{sets:6,reps:2,rest:50,note:'6 sets of 2, rest 45–60s'}, t2b:{sets:6,reps:1,rest:45,note:'6 controlled singles, full reset'}, extra:[{type:'accessory',name:'Hollow hold',sets:3,target:'20s'}] },
+    optional:{ label:'Optional · Technique', drills:['Beat swings','Kip timing drill','Straight-leg raises'], accessory:['Dead hang'] }
+ }},
+ { week:2, objective:'Add small amounts of volume.', sessions:{
+    A:{ label:'Session A · EMOM Build', pullup:{sets:5,reps:3,rest:60,note:'5-minute EMOM of 2–3 reps'}, t2b:{sets:5,reps:1,rest:60,note:'5-minute EMOM of 1 rep'}, extra:[{type:'accessory',name:'Scapular pull-ups',sets:3,target:'5 reps'}] },
+    B:{ label:'Session B · Controlled Volume', pullup:{sets:5,reps:3,rest:50,note:'5 sets of 3 or appropriate modification'}, t2b:{sets:8,reps:1,rest:40,note:'8 controlled singles'}, extra:[{type:'drill',name:'Hollow-to-arch swings',sets:3,target:'5 reps'}] },
+    optional:{ label:'Optional · Grip & Technique', drills:['Grip regrip practice','Lat activation drill'], accessory:['Grip carry'] }
+ }},
+ { week:3, objective:'Begin linking reps together.', sessions:{
+    A:{ label:'Session A · EMOM + Linking', pullup:{sets:6,reps:3,rest:60,note:'6-minute EMOM of 3 reps'}, t2b:{sets:6,reps:1,rest:60,note:'Alternate 1 linked-set attempt with controlled singles'}, extra:[{type:'drill',name:'Beat swings',sets:3,target:'6 reps'}] },
+    B:{ label:'Session B · 5 Rounds', pullup:{sets:5,reps:3,rest:70,note:'5 rounds: 3 pull-ups'}, t2b:{sets:5,reps:2,rest:70,note:'5 rounds: 1–2 toes-to-bar, rest 60–75s between rounds'}, extra:[] },
+    optional:{ label:'Optional · Low-Volume Technique', drills:['Kip timing drill','Toes-to-bar single-rep reset drill'], accessory:[] }
+ }},
+ { week:4, objective:'Develop density.', sessions:{
+    A:{ label:'Session A · EMOM Density', pullup:{sets:6,reps:4,rest:60,note:'6-minute EMOM of 3–4 reps'}, t2b:{sets:6,reps:2,rest:60,note:'6-minute EMOM of 1–2 reps'}, extra:[{type:'accessory',name:'Dead hang',sets:3,target:'20–30s'}] },
+    B:{ label:'Session B · Every 90s x6', pullup:{sets:6,reps:3,rest:90,note:'Every 90s for 6 rounds: 3 pull-ups'}, t2b:{sets:6,reps:2,rest:90,note:'2 toes-to-bar or modification'}, extra:[] },
+    optional:{ label:'Optional · Technique & Mobility', drills:['Low-bar toes-to-target','Lat activation drill'], accessory:[] }
+ }},
+ { week:5, objective:'Deload & quality week — reduce volume ~30–40%.', deload:true, sessions:{
+    A:{ label:'Session A · Quality Focus', pullup:{sets:4,reps:2,rest:60,note:'Short, smooth, no missed reps'}, t2b:{sets:4,reps:1,rest:60,note:'Focus on hollow/arch positions'}, extra:[{type:'accessory',name:'Dead hang',sets:2,target:'20s'}] },
+    B:{ label:'Session B · Recovery Volume', pullup:{sets:4,reps:2,rest:60,note:'Grip & shoulder recovery focus'}, t2b:{sets:4,reps:1,rest:60,note:'No maximum testing this week'}, extra:[] },
+    optional:{ label:'Optional · Mobility Only', drills:['Straight-leg raises'], accessory:['Hollow hold'] }
+ }},
+ { week:6, objective:'Build repeatable sets.', sessions:{
+    A:{ label:'Session A · EMOM 7min', pullup:{sets:7,reps:4,rest:60,note:'7-minute EMOM of 3–4 reps'}, t2b:{sets:7,reps:2,rest:60,note:'7-minute EMOM of 2 reps or modification'}, extra:[] },
+    B:{ label:'Session B · Every 90s x7', pullup:{sets:7,reps:4,rest:90,note:'4 pull-ups every 90s, 7 rounds'}, t2b:{sets:7,reps:2,rest:90,note:'2 toes-to-bar every round'}, extra:[] },
+    optional:{ label:'Optional · Technique, Grip & Core', drills:['Grip regrip practice'], accessory:['Grip carry','Hollow hold'] }
+ }},
+ { week:7, objective:'Mixed gymnastics volume.', sessions:{
+    A:{ label:'Session A · Alternating EMOM', pullup:{sets:4,reps:4,rest:60,note:'8-min alternating EMOM — odd minutes: pull-ups'}, t2b:{sets:4,reps:4,rest:60,note:'Even minutes: toes-to-bar'}, extra:[] },
+    B:{ label:'Session B · 6 Rounds', pullup:{sets:6,reps:4,rest:90,note:'6 rounds: 4 pull-ups'}, t2b:{sets:6,reps:3,rest:90,note:'3 toes-to-bar or modification; rest enough to maintain technique'}, extra:[] },
+    optional:{ label:'Optional · Easy Skill Practice', drills:['Beat swings','Kip timing drill'], accessory:[] }
+ }},
+ { week:8, objective:'Consolidation and testing.', sessions:{
+    A:{ label:'Session A · Light Rehearsal', pullup:{sets:3,reps:2,rest:60,note:'Low-volume technique rehearsal, no fatigue accumulation'}, t2b:{sets:3,reps:1,rest:60,note:'Light rehearsal only'}, extra:[] },
+    B:{ label:'Session B · TEST DAY', isTest:true, note:'Max unbroken pull-up set → rest 5 min → max unbroken toes-to-bar set → rest 5 min → 5-minute repeatability test.' },
+    optional:{ label:'Optional', drills:[], accessory:[] }
+ }}
+];
+
+const MILESTONE_DEFS = [
+ { id:'pu_first', group:'Pull-Up', label:'First kipping pull-up' },
+ { id:'pu_3', group:'Pull-Up', label:'3 unbroken kipping pull-ups' },
+ { id:'pu_5', group:'Pull-Up', label:'5 unbroken kipping pull-ups' },
+ { id:'pu_7', group:'Pull-Up', label:'7 unbroken kipping pull-ups' },
+ { id:'pu_10', group:'Pull-Up', label:'10 unbroken kipping pull-ups' },
+ { id:'pu_15', group:'Pull-Up', label:'15 unbroken kipping pull-ups' },
+ { id:'pu_25total', group:'Pull-Up', label:'First 25 total pull-up reps in a session' },
+ { id:'pu_50total', group:'Pull-Up', label:'First 50 total pull-up reps in a session' },
+ { id:'pu_allsets', group:'Pull-Up', label:'Completed all planned pull-up sets without a miss' },
+ { id:'t2b_first', group:'Toes-to-Bar', label:'First toes-to-bar' },
+ { id:'t2b_2', group:'Toes-to-Bar', label:'2 linked toes-to-bar' },
+ { id:'t2b_3', group:'Toes-to-Bar', label:'3 linked toes-to-bar' },
+ { id:'t2b_5', group:'Toes-to-Bar', label:'5 linked toes-to-bar' },
+ { id:'t2b_7', group:'Toes-to-Bar', label:'7 linked toes-to-bar' },
+ { id:'t2b_10', group:'Toes-to-Bar', label:'10 linked toes-to-bar' },
+ { id:'t2b_10total', group:'Toes-to-Bar', label:'First 10 total toes-to-bar reps in a session' },
+ { id:'t2b_20total', group:'Toes-to-Bar', label:'First 20 total toes-to-bar reps in a session' },
+ { id:'t2b_nomod', group:'Toes-to-Bar', label:'First workout using full toes-to-bar instead of a modification' },
+ { id:'combo_both', group:'Combined', label:'First session performing both skills' },
+ { id:'combo_mixedemom', group:'Combined', label:'First mixed EMOM completed' },
+ { id:'combo_repeat5', group:'Combined', label:'First five-minute repeatability test' },
+ { id:'combo_program', group:'Combined', label:'Completed the full 8-week program' },
+ { id:'combo_3sessions', group:'Combined', label:'Completed three sessions in one week' },
+ { id:'combo_4weeks', group:'Combined', label:'Four consecutive weeks of consistent practice' },
+];
+
+/* ---------- State ---------- */
+let state = null;
+let activeTab = 'today';
+let currentSession = null; // draft session object being edited on Today tab
+let editingSessionId = null; // if editing a past session from History
+
+function defaultSettings(){
+  return {
+    name:'', startDate: new Date().toISOString().slice(0,10),
+    sessionsPerWeek:2, maxPullup:3, maxT2b:2,
+    defaultRest:60, defaultSessionLength:12,
+    showOptional:true, adaptiveRecs:true, soundEnabled:false, milestoneCelebrations:true,
+    theme:'burgundy'
+  };
+}
+
+function defaultState(){
+  return {
+    settings: defaultSettings(),
+    sessions: [],          // completed/saved session logs
+    milestones: {},        // id -> ISO date achieved
+    weekNotes: {},         // weekNum -> text
+    lastSaved: null
+  };
+}
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(GVB_STORAGE_KEY);
+    if(!raw){ state = defaultState(); return; }
+    const parsed = JSON.parse(raw);
+    state = Object.assign(defaultState(), parsed);
+    state.settings = Object.assign(defaultSettings(), parsed.settings || {});
+  }catch(e){
+    console.error('Failed to load saved data, starting fresh.', e);
+    state = defaultState();
+  }
+}
+
+function saveData(showToastMsg){
+  const dot = document.getElementById('saveDot');
+  const txt = document.getElementById('saveText');
+  dot.classList.add('saving');
+  try{
+    state.lastSaved = new Date().toISOString();
+    localStorage.setItem(GVB_STORAGE_KEY, JSON.stringify(state));
+    dot.classList.remove('saving');
+    txt.textContent = 'Saved ' + formatTime(state.lastSaved);
+  }catch(e){
+    dot.classList.remove('saving');
+    txt.textContent = 'Save failed';
+    console.error('localStorage save failed', e);
+    showToast('⚠️ Could not save — storage may be full.');
+    return;
+  }
+  if(showToastMsg) showToast(showToastMsg);
+  applyTheme();
+}
+
+function formatTime(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+}
+
+let toastTimer=null;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', state.settings.theme || 'burgundy');
+}
+
+/* ---------- Program week calculation ---------- */
+function getCurrentWeekNumber(){
+  const start = new Date(state.settings.startDate + 'T00:00:00');
+  const now = new Date();
+  const diffDays = Math.floor((now - start) / 86400000);
+  let wk = Math.floor(diffDays/7) + 1;
+  if(wk < 1) wk = 1;
+  if(wk > 8) wk = 8;
+  return wk;
+}
+
+function sessionsForWeek(weekNum){
+  return state.sessions.filter(s=>s.programWeek === weekNum);
+}
+
+function isSessionSlotComplete(weekNum, slot){
+  return sessionsForWeek(weekNum).some(s=>s.slot===slot && s.completed);
+}
+
+function weekCompletion(weekNum){
+  const aDone = isSessionSlotComplete(weekNum,'A');
+  const bDone = isSessionSlotComplete(weekNum,'B');
+  return { aDone, bDone, fullyComplete: aDone && bDone };
+}
+
+function programOverallPercent(){
+  let done=0;
+  for(let w=1;w<=8;w++){ const c=weekCompletion(w); done += (c.aDone?1:0)+(c.bDone?1:0); }
+  return Math.round(done/16*100);
+}
+
+/* =========================================================================
+   TAB SWITCHING
+   ========================================================================= */
+function switchTab(tab){
+  activeTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  render();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+/* =========================================================================
+   RENDER DISPATCH
+   ========================================================================= */
+function render(){
+  applyTheme();
+  if(activeTab==='today') renderToday();
+  else if(activeTab==='program') renderProgram();
+  else if(activeTab==='history') renderHistory();
+  else if(activeTab==='analytics') renderAnalytics();
+  else if(activeTab==='milestones') renderMilestones();
+  else if(activeTab==='settings') renderSettings();
+}
+
+/* =========================================================================
+   TODAY TAB
+   ========================================================================= */
+function newBlankSetRows(n, plannedReps){
+  const rows=[];
+  for(let i=0;i<n;i++) rows.push({planned:plannedReps, actual:'', unbroken:false, missed:false, mod: (i===0?'':'')});
+  return rows;
+}
+
+function startFreshSession(weekNum, slot){
+  const weekData = PROGRAM[weekNum-1];
+  const sessDef = weekData.sessions[slot];
+  const isTest = !!sessDef.isTest;
+  currentSession = {
+    id: 'sess_' + Date.now(),
+    date: new Date().toISOString().slice(0,10),
+    programWeek: weekNum,
+    slot: slot,
+    sessionLabel: sessDef.label,
+    readiness: 4,
+    classDemand: 'Moderate',
+    primarySkill: isTest ? 'mixed' : (sessDef.t2b ? 'mixed' : 'pullup'),
+    isTest: isTest,
+    pullupSets: isTest ? [] : newBlankSetRows(sessDef.pullup ? sessDef.pullup.sets : 0, sessDef.pullup ? sessDef.pullup.reps : ''),
+    t2bSets: isTest ? [] : newBlankSetRows(sessDef.t2b ? sessDef.t2b.sets : 0, sessDef.t2b ? sessDef.t2b.reps : ''),
+    plannedRestPU: sessDef.pullup ? sessDef.pullup.rest : state.settings.defaultRest,
+    plannedRestT2B: sessDef.t2b ? sessDef.t2b.rest : state.settings.defaultRest,
+    prescriptionNote: sessDef.pullup ? sessDef.pullup.note : (sessDef.note||''),
+    prescriptionNoteT2B: sessDef.t2b ? sessDef.t2b.note : '',
+    drills: (sessDef.extra||[]).filter(e=>e.type==='drill').map(e=>({name:e.name, sets:e.sets, target:e.target, completed:false, notes:''}))
+      .concat( (sessDef.drills||[]).map(n=>({name:n, sets:2, target:'', completed:false, notes:''})) ),
+    accessory: (sessDef.extra||[]).filter(e=>e.type==='accessory').map(e=>({name:e.name, sets:e.sets, target:e.target, completed:false, notes:''}))
+      .concat( (sessDef.accessory||[]).map(n=>({name:n, sets:2, target:'', completed:false, notes:''})) ),
+    testData: isTest ? { maxPullup:'', maxT2b:'', repeatTemplate:'2pu_1t2b', customPU:'', customT2B:'', rounds:'', totalPU:'', totalT2B:'' } : null,
+    techniqueQuality: 3,
+    gripFatigue: 2,
+    discomfort: 0,
+    bestUnbrokenPU: '', bestUnbrokenT2B: '',
+    improved: '', focusNext: '', generalNotes: '',
+    completed: false,
+    savedAt: new Date().toISOString()
+  };
+  editingSessionId = null;
+}
+
+function ensureCurrentSession(){
+  if(currentSession) return;
+  const wk = getCurrentWeekNumber();
+  // choose the first incomplete required slot this week, default to A
+  const comp = weekCompletion(wk);
+  const slot = comp.aDone && !comp.bDone ? 'B' : 'A';
+  startFreshSession(wk, slot);
+}
+
+function renderToday(){
+  ensureCurrentSession();
+  const s = currentSession;
+  const wk = s.programWeek;
+  const weekData = PROGRAM[wk-1];
+  const dateObj = new Date(s.date+'T00:00:00');
+
+  let html = '';
+
+  if(s.discomfort >= 4){
+    html += `<div class="stop-banner">⛔ End the gymnastics session and avoid additional hanging or pulling work today.</div>`;
+  } else if(s.gripFatigue >=5){
+    html += `<div class="warn-banner">⚠️ Grip fatigue is maxed out — consider stopping technique work early today.</div>`;
+  }
+
+  html += `<div class="card">
+    <div class="eyebrow">Today's Session</div>
+    <h2>Week ${wk} · ${escapeHtml(s.sessionLabel)}</h2>
+    <div class="row">
+      <div class="field">
+        <label for="f-date">Date</label>
+        <input type="date" id="f-date" value="${s.date}" onchange="updateField('date', this.value)">
+      </div>
+      <div class="field">
+        <label for="f-week">Program Week</label>
+        <select id="f-week" onchange="changeWeekSlot(this.value, currentSession.slot)">
+          ${[1,2,3,4,5,6,7,8].map(w=>`<option value="${w}" ${w===wk?'selected':''}>Week ${w}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-slot">Session</label>
+        <select id="f-slot" onchange="changeWeekSlot(currentSession.programWeek, this.value)">
+          <option value="A" ${s.slot==='A'?'selected':''}>Session A</option>
+          <option value="B" ${s.slot==='B'?'selected':''}>Session B</option>
+          <option value="optional" ${s.slot==='optional'?'selected':''}>Optional</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Overall readiness before starting</label>
+      <div class="chip-group">
+        ${READINESS.map((r,i)=>`<button type="button" class="chip scale-btn ${s.readiness===i+1?'selected':''}" title="${r}" onclick="updateField('readiness', ${i+1})">${i+1}</button>`).join('')}
+      </div>
+      <div class="safety-note" style="margin-top:6px;">${READINESS[s.readiness-1]}</div>
+    </div>
+    <div class="field">
+      <label>How demanding was today's CrossFit class?</label>
+      <div class="chip-group">
+        ${CLASS_DEMAND.map(c=>`<button type="button" class="chip ${s.classDemand===c?'selected':''}" onclick="updateField('classDemand','${c}')">${c}</button>`).join('')}
+      </div>
+    </div>
+    ${classDemandWarning(s)}
+  </div>`;
+
+  if(s.slot==='optional'){
+    html += renderOptionalSection(s, weekData.sessions.optional);
+  } else if(s.isTest){
+    html += renderTestSection(s);
+  } else {
+    html += renderSkillBlock(s,'pullup','Kipping Pull-Ups', PULLUP_MODS);
+    html += renderSkillBlock(s,'t2b','Toes-to-Bar', T2B_MODS);
+    html += renderDrillBlock(s);
+    html += renderAccessoryBlock(s);
+    html += renderReflectionBlock(s);
+  }
+
+  html += `<div class="card">
+    <button class="btn btn-primary btn-block" onclick="completeSession()">✅ Complete Session</button>
+    <div style="height:8px;"></div>
+    <button class="btn btn-ghost btn-block" onclick="discardDraft()">Discard draft &amp; start over</button>
+  </div>`;
+
+  html += `<div class="safety-note">This tracker is for training organization, not medical advice. Stop if you experience sharp pain, numbness, loss of grip control, or worsening shoulder or elbow symptoms.</div>`;
+
+  document.getElementById('tab-today').innerHTML = html;
+}
+
+function classDemandWarning(s){
+  if(s.classDemand==='Very hard' || s.classDemand==='Gymnastics-heavy'){
+    return `<div class="warn-banner">Class was ${s.classDemand.toLowerCase()} — consider technique work only, or cut planned volume in half today.</div>`;
+  }
+  return '';
+}
+
+function renderSkillBlock(s, key, title, mods){
+  const sets = key==='pullup' ? s.pullupSets : s.t2bSets;
+  const note = key==='pullup' ? s.prescriptionNote : s.prescriptionNoteT2B;
+  const rest = key==='pullup' ? s.plannedRestPU : s.plannedRestT2B;
+  let rows = sets.map((row,i)=>`
+    <div class="set-row">
+      <div class="set-num">${i+1}</div>
+      <div style="min-width:70px;">
+        <label class="mini">Planned</label>
+        <input type="number" min="0" value="${row.planned}" onchange="updateSetField('${key}',${i},'planned',this.value)">
+      </div>
+      <div style="min-width:70px;">
+        <label class="mini">Actual</label>
+        <input type="number" min="0" value="${row.actual}" onchange="updateSetField('${key}',${i},'actual',this.value)">
+      </div>
+      <div style="min-width:130px;">
+        <label class="mini">Modification</label>
+        <select onchange="updateSetField('${key}',${i},'mod',this.value)">
+          <option value="">— select —</option>
+          ${mods.map(m=>`<option value="${m}" ${row.mod===m?'selected':''}>${m}</option>`).join('')}
+        </select>
+      </div>
+      <div class="set-check">
+        <label><input type="checkbox" ${row.unbroken?'checked':''} onchange="updateSetField('${key}',${i},'unbroken',this.checked)"> Unbroken</label>
+      </div>
+      <div class="set-check">
+        <label><input type="checkbox" ${row.missed?'checked':''} onchange="updateSetField('${key}',${i},'missed',this.checked)"> Missed</label>
+      </div>
+      <button type="button" class="remove-set" aria-label="Remove set ${i+1}" onclick="removeSet('${key}',${i})">✕</button>
+    </div>`).join('');
+  if(sets.length===0) rows = `<div class="empty-state"><div class="ic">➕</div>No sets yet — add one below.</div>`;
+  return `<div class="card">
+    <div class="eyebrow">Primary Skill</div>
+    <h3>${title}</h3>
+    ${note?`<div class="safety-note" style="margin-bottom:10px;">Prescription: ${escapeHtml(note)} · rest ~${rest}s</div>`:''}
+    ${rows}
+    <button class="btn btn-secondary btn-sm" onclick="addSet('${key}')">+ Add set</button>
+  </div>`;
+}
+
+function renderDrillBlock(s){
+  if(s.drills.length===0){
+    return `<div class="card">
+      <div class="eyebrow">Technique Drills</div>
+      <h3>Add a drill</h3>
+      <div class="field"><select id="drillPicker">${DRILL_LIST.map(d=>`<option>${d}</option>`).join('')}</select></div>
+      <button class="btn btn-secondary btn-sm" onclick="addDrill()">+ Add drill</button>
+    </div>`;
+  }
+  const rows = s.drills.map((d,i)=>`
+    <div class="sess-block">
+      <div class="sess-head">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:700;">
+          <input type="checkbox" ${d.completed?'checked':''} onchange="updateDrillField(${i},'completed',this.checked)"> ${escapeHtml(d.name)}
+        </label>
+        <button class="remove-set" onclick="removeDrill(${i})" aria-label="Remove drill">✕</button>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <div><label class="mini">Sets</label><input type="number" min="0" value="${d.sets||''}" onchange="updateDrillField(${i},'sets',this.value)"></div>
+        <div><label class="mini">Reps / seconds</label><input type="text" value="${d.target||''}" onchange="updateDrillField(${i},'target',this.value)"></div>
+      </div>
+      <div class="field" style="margin-top:6px;"><label class="mini">Notes</label><input type="text" value="${escapeHtml(d.notes||'')}" onchange="updateDrillField(${i},'notes',this.value)"></div>
+    </div>`).join('');
+  return `<div class="card">
+    <div class="eyebrow">Technique Drills</div>
+    ${rows}
+    <div class="row" style="margin-top:10px;">
+      <select id="drillPicker">${DRILL_LIST.map(d=>`<option>${d}</option>`).join('')}</select>
+      <button class="btn btn-secondary btn-sm" onclick="addDrill()">+ Add drill</button>
+    </div>
+  </div>`;
+}
+
+function renderAccessoryBlock(s){
+  const rows = s.accessory.map((d,i)=>`
+    <div class="sess-block">
+      <div class="sess-head">
+        <label style="display:flex;align-items:center;gap:8px;font-weight:700;">
+          <input type="checkbox" ${d.completed?'checked':''} onchange="updateAccField(${i},'completed',this.checked)"> ${escapeHtml(d.name)}
+        </label>
+        <button class="remove-set" onclick="removeAcc(${i})" aria-label="Remove accessory">✕</button>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <div><label class="mini">Sets</label><input type="number" min="0" value="${d.sets||''}" onchange="updateAccField(${i},'sets',this.value)"></div>
+        <div><label class="mini">Reps / seconds</label><input type="text" value="${d.target||''}" onchange="updateAccField(${i},'target',this.value)"></div>
+      </div>
+    </div>`).join('');
+  return `<div class="card">
+    <div class="eyebrow">Optional Accessory Work</div>
+    ${rows || '<div class="safety-note">None added yet.</div>'}
+    <div class="row" style="margin-top:10px;">
+      <select id="accPicker">${ACCESSORY_LIST.map(d=>`<option>${d}</option>`).join('')}</select>
+      <button class="btn btn-secondary btn-sm" onclick="addAcc()">+ Add accessory</button>
+    </div>
+  </div>`;
+}
+
+function renderReflectionBlock(s){
+  const techLabels=['Poor','Inconsistent','Okay','Good','Excellent'];
+  const gripLabels=['None','Mild','Moderate','High','Maxed out'];
+  const discLabels=['None','Barely noticeable','Mild','Moderate','Significant','Stop-worthy'];
+  return `<div class="card">
+    <div class="eyebrow">End-of-Session Reflection</div>
+    <div class="field">
+      <label>Technique quality</label>
+      <div class="chip-group">${techLabels.map((l,i)=>`<button type="button" class="chip scale-btn ${s.techniqueQuality===i+1?'selected':''}" onclick="updateField('techniqueQuality',${i+1})">${i+1}</button>`).join('')}</div>
+      <div class="safety-note" style="margin-top:6px;">${techLabels[s.techniqueQuality-1]}</div>
+    </div>
+    <div class="field">
+      <label>Grip fatigue</label>
+      <div class="chip-group">${gripLabels.map((l,i)=>`<button type="button" class="chip scale-btn ${s.gripFatigue===i+1?'selected':''}" onclick="updateField('gripFatigue',${i+1})">${i+1}</button>`).join('')}</div>
+      <div class="safety-note" style="margin-top:6px;">${gripLabels[s.gripFatigue-1]}</div>
+    </div>
+    <div class="field">
+      <label>Shoulder / elbow discomfort</label>
+      <div class="chip-group">${discLabels.map((l,i)=>`<button type="button" class="chip scale-btn ${s.discomfort===i?'selected':''}" onclick="updateField('discomfort',${i})">${i}</button>`).join('')}</div>
+      <div class="safety-note" style="margin-top:6px;">${discLabels[s.discomfort]}</div>
+      ${s.discomfort>=4?'<div class="stop-banner">End the gymnastics session and avoid additional hanging or pulling work today.</div>':''}
+    </div>
+    <div class="row">
+      <div class="field"><label>Best unbroken pull-up set today</label><input type="number" min="0" value="${s.bestUnbrokenPU}" onchange="updateField('bestUnbrokenPU', this.value)"></div>
+      <div class="field"><label>Best unbroken toes-to-bar set today</label><input type="number" min="0" value="${s.bestUnbrokenT2B}" onchange="updateField('bestUnbrokenT2B', this.value)"></div>
+    </div>
+    <div class="field"><label>What improved today?</label><textarea onchange="updateField('improved', this.value)">${escapeHtml(s.improved)}</textarea></div>
+    <div class="field"><label>What should I focus on next time?</label><textarea onchange="updateField('focusNext', this.value)">${escapeHtml(s.focusNext)}</textarea></div>
+    <div class="field"><label>General notes</label><textarea onchange="updateField('generalNotes', this.value)">${escapeHtml(s.generalNotes)}</textarea></div>
+  </div>`;
+}
+
+function renderTestSection(s){
+  const td = s.testData;
+  const templates = {
+    '2pu_1t2b':'2 pull-ups + 1 toes-to-bar',
+    '3pu_2t2b':'3 pull-ups + 2 toes-to-bar',
+    '4pu_2t2b':'4 pull-ups + 2 toes-to-bar',
+    'custom':'Custom'
+  };
+  return `<div class="card">
+    <div class="eyebrow">Week 8 Test Day</div>
+    <h3>1. Max Quality Unbroken Sets</h3>
+    <div class="safety-note" style="margin-bottom:10px;">Rest at least 5 minutes between each max attempt.</div>
+    <div class="row">
+      <div class="field"><label>Max unbroken kipping pull-up set</label><input type="number" min="0" value="${td.maxPullup}" onchange="updateTestField('maxPullup', this.value)"></div>
+      <div class="field"><label>Max unbroken toes-to-bar set</label><input type="number" min="0" value="${td.maxT2b}" onchange="updateTestField('maxT2b', this.value)"></div>
+    </div>
+    <hr class="divider">
+    <h3>2. Five-Minute Repeatability Test</h3>
+    <div class="field">
+      <label>Round template</label>
+      <select onchange="updateTestField('repeatTemplate', this.value)">
+        ${Object.keys(templates).map(k=>`<option value="${k}" ${td.repeatTemplate===k?'selected':''}>${templates[k]}</option>`).join('')}
+      </select>
+    </div>
+    ${td.repeatTemplate==='custom'?`<div class="row">
+      <div class="field"><label>Custom pull-up reps / round</label><input type="number" min="0" value="${td.customPU}" onchange="updateTestField('customPU', this.value)"></div>
+      <div class="field"><label>Custom toes-to-bar reps / round</label><input type="number" min="0" value="${td.customT2B}" onchange="updateTestField('customT2B', this.value)"></div>
+    </div>`:''}
+    <div class="row">
+      <div class="field"><label>Total successful rounds</label><input type="number" min="0" value="${td.rounds}" onchange="updateTestField('rounds', this.value)"></div>
+      <div class="field"><label>Total pull-up reps</label><input type="number" min="0" value="${td.totalPU}" onchange="updateTestField('totalPU', this.value)"></div>
+      <div class="field"><label>Total toes-to-bar reps</label><input type="number" min="0" value="${td.totalT2B}" onchange="updateTestField('totalT2B', this.value)"></div>
+    </div>
+  </div>` + renderReflectionBlock(s);
+}
+
+function renderOptionalSection(s, optDef){
+  return renderDrillBlock(s) + renderAccessoryBlock(s) + renderReflectionBlock(s);
+}
+
+/* ---- Today tab field update handlers ---- */
+function updateField(field, value){
+  currentSession[field] = value;
+  saveDraftSilently();
+}
+function updateSetField(key, idx, field, value){
+  const arr = key==='pullup' ? currentSession.pullupSets : currentSession.t2bSets;
+  if(field==='unbroken' || field==='missed') arr[idx][field] = value;
+  else arr[idx][field] = value;
+  saveDraftSilently();
+}
+function addSet(key){
+  const arr = key==='pullup' ? currentSession.pullupSets : currentSession.t2bSets;
+  const lastPlanned = arr.length ? arr[arr.length-1].planned : '';
+  arr.push({planned:lastPlanned, actual:'', unbroken:false, missed:false, mod:''});
+  renderToday(); saveDraftSilently();
+}
+function removeSet(key, idx){
+  const arr = key==='pullup' ? currentSession.pullupSets : currentSession.t2bSets;
+  arr.splice(idx,1);
+  renderToday(); saveDraftSilently();
+}
+function updateDrillField(i, field, val){ currentSession.drills[i][field]=val; saveDraftSilently(); if(field==='completed') renderToday(); }
+function addDrill(){ const val=document.getElementById('drillPicker').value; currentSession.drills.push({name:val, sets:2, target:'', completed:false, notes:''}); renderToday(); saveDraftSilently(); }
+function removeDrill(i){ currentSession.drills.splice(i,1); renderToday(); saveDraftSilently(); }
+function updateAccField(i, field, val){ currentSession.accessory[i][field]=val; saveDraftSilently(); if(field==='completed') renderToday(); }
+function addAcc(){ const val=document.getElementById('accPicker').value; currentSession.accessory.push({name:val, sets:2, target:'', completed:false, notes:''}); renderToday(); saveDraftSilently(); }
+function removeAcc(i){ currentSession.accessory.splice(i,1); renderToday(); saveDraftSilently(); }
+function updateTestField(field, val){ currentSession.testData[field]=val; saveDraftSilently(); }
+
+function changeWeekSlot(weekNum, slot){
+  weekNum = parseInt(weekNum);
+  if(currentSession && currentSession.programWeek===weekNum && currentSession.slot===slot) return;
+  startFreshSession(weekNum, slot);
+  renderToday();
+}
+
+function discardDraft(){
+  if(!confirm('Discard the current draft session? Unsaved entries on this screen will be cleared (previously completed sessions are not affected).')) return;
+  currentSession = null;
+  renderToday();
+  showToast('Draft cleared.');
+}
+
+// Drafts aren't persisted to history until "Complete Session," but we keep a
+// lightweight autosave of the draft itself so switching tabs never loses data.
+function saveDraftSilently(){
+  try{
+    sessionStorage.setItem('gvbDraft', JSON.stringify(currentSession));
+  }catch(e){ /* non-fatal */ }
+}
+function loadDraft(){
+  try{
+    const raw = sessionStorage.getItem('gvbDraft');
+    if(raw) currentSession = JSON.parse(raw);
+  }catch(e){ currentSession = null; }
+}
+
+function totalReps(sets){
+  return sets.reduce((sum,r)=> sum + (parseInt(r.actual)||0), 0);
+}
+function bestUnbroken(sets){
+  let best=0;
+  sets.forEach(r=>{ if(r.unbroken){ const v=parseInt(r.actual)||0; if(v>best) best=v; } });
+  return best;
+}
+
+function completeSession(){
+  const s = currentSession;
+  if(s.isTest){
+    s.totalPullupReps = parseInt(s.testData.totalPU)||0;
+    s.totalT2BReps = parseInt(s.testData.totalT2B)||0;
+    s.bestUnbrokenPUCalc = parseInt(s.testData.maxPullup)||0;
+    s.bestUnbrokenT2BCalc = parseInt(s.testData.maxT2b)||0;
+  } else {
+    s.totalPullupReps = totalReps(s.pullupSets);
+    s.totalT2BReps = totalReps(s.t2bSets);
+    s.bestUnbrokenPUCalc = Math.max(bestUnbroken(s.pullupSets), parseInt(s.bestUnbrokenPU)||0);
+    s.bestUnbrokenT2BCalc = Math.max(bestUnbroken(s.t2bSets), parseInt(s.bestUnbrokenT2B)||0);
+  }
+  s.completed = true;
+  s.completedAt = new Date().toISOString();
+  s.missedAny = s.isTest ? false : (s.pullupSets.some(r=>r.missed) || s.t2bSets.some(r=>r.missed));
+
+  // remove any prior draft-with-same-id, then push
+  const existingIdx = state.sessions.findIndex(x=>x.id===s.id);
+  if(existingIdx>=0) state.sessions[existingIdx] = s; else state.sessions.push(s);
+
+  saveData();
+  sessionStorage.removeItem('gvbDraft');
+
+  const newlyAchieved = checkMilestones();
+
+  const wkNum = s.programWeek;
+  maybeSetWeekRecommendation(wkNum);
+
+  currentSession = null;
+
+  let msg = 'Nice work! Session logged.';
+  document.getElementById('tab-today').innerHTML =
+    `<div class="celebrate-banner">🎉 ${msg}${newlyAchieved.length? ' New milestone: '+escapeHtml(newlyAchieved[0].label)+'!':''}</div>` +
+    `<div class="card"><h2>Session Summary</h2>
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="num">${s.totalPullupReps||0}</div><div class="lbl">Pull-up reps</div></div>
+        <div class="stat-tile"><div class="num">${s.totalT2BReps||0}</div><div class="lbl">Toes-to-bar reps</div></div>
+        <div class="stat-tile"><div class="num">${s.bestUnbrokenPUCalc||0}</div><div class="lbl">Best unbroken PU</div></div>
+        <div class="stat-tile"><div class="num">${s.bestUnbrokenT2BCalc||0}</div><div class="lbl">Best unbroken T2B</div></div>
+      </div>
+      <div style="height:10px;"></div>
+      <button class="btn btn-primary btn-block" onclick="currentSession=null; switchTab('program');">View Program</button>
+      <div style="height:8px;"></div>
+      <button class="btn btn-secondary btn-block" onclick="currentSession=null; renderToday();">Log Another Session</button>
+    </div>`;
+
+  if(newlyAchieved.length && state.settings.milestoneCelebrations){
+    showToast('🏅 Milestone unlocked: ' + newlyAchieved[0].label);
+  } else {
+    showToast('Session saved.');
+  }
+}
+
+/* =========================================================================
+   ADAPTIVE RECOMMENDATION ENGINE
+   ========================================================================= */
+function maybeSetWeekRecommendation(weekNum){
+  if(!state.settings.adaptiveRecs) return;
+  const sess = sessionsForWeek(weekNum).filter(s=>s.completed && (s.slot==='A'||s.slot==='B'));
+  if(sess.length < 2) { return; } // wait until both required sessions are in
+  const avgTech = avg(sess.map(s=>s.techniqueQuality||3));
+  const maxGrip = Math.max(...sess.map(s=>s.gripFatigue||1));
+  const maxDisc = Math.max(...sess.map(s=>s.discomfort||0));
+  const anyMissed = sess.some(s=>s.missedAny);
+  let rec = '';
+  if(maxDisc >= 3){
+    rec = '⚠️ Shoulder/elbow discomfort reached ' + maxDisc + '/5 this week. Prioritize technique-only work or rest before adding volume.';
+  } else if(anyMissed || avgTech < 3 || maxGrip >= 5){
+    rec = 'Missed reps, softer technique, or maxed-out grip fatigue this week — consider repeating this week or lowering volume by ~15%.';
+  } else if(avgTech >= 4 && maxGrip <= 3 && !anyMissed){
+    rec = 'All planned reps completed with good technique and manageable grip fatigue — try adding 1 rep per set or one extra round next time.';
+  } else {
+    rec = 'Solid, steady week. Hold volume steady and keep an eye on technique consistency.';
+  }
+  if(!state.weekNotes[weekNum]) state.weekNotes[weekNum] = {};
+  if(typeof state.weekNotes[weekNum] === 'string') state.weekNotes[weekNum] = {notes: state.weekNotes[weekNum]};
+  state.weekNotes[weekNum].recommendation = rec;
+  saveData();
+}
+function avg(arr){ return arr.length? arr.reduce((a,b)=>a+b,0)/arr.length : 0; }
+
+/* =========================================================================
+   MILESTONE DETECTION
+   ========================================================================= */
+function checkMilestones(){
+  const newly = [];
+  const mark = (id)=>{
+    if(!state.milestones[id]){
+      state.milestones[id] = new Date().toISOString();
+      const def = MILESTONE_DEFS.find(m=>m.id===id);
+      if(def) newly.push(def);
+    }
+  };
+  const sessions = state.sessions.filter(s=>s.completed);
+  let bestPU=0, bestT2B=0;
+  let weeksWithSessions = {};
+  sessions.forEach(s=>{
+    const pu = s.bestUnbrokenPUCalc||0, t2b = s.bestUnbrokenT2BCalc||0;
+    if(pu>bestPU) bestPU=pu;
+    if(t2b>bestT2B) bestT2B=t2b;
+    if((s.totalPullupReps||0) >= 1 && (!s.isTest) && s.pullupSets && s.pullupSets.some(r=>r.mod==='Full kipping pull-up' && (parseInt(r.actual)||0)>=1)) mark('pu_first');
+    if((s.totalT2BReps||0) >= 1 && (!s.isTest) && s.t2bSets && s.t2bSets.some(r=>r.mod==='Full toes-to-bar' && (parseInt(r.actual)||0)>=1)){ mark('t2b_first'); mark('t2b_nomod'); }
+    if((s.totalPullupReps||0) >= 25) mark('pu_25total');
+    if((s.totalPullupReps||0) >= 50) mark('pu_50total');
+    if((s.totalT2BReps||0) >= 10) mark('t2b_10total');
+    if((s.totalT2BReps||0) >= 20) mark('t2b_20total');
+    if(!s.isTest && s.completed && !s.missedAny && (s.pullupSets||[]).length>0) mark('pu_allsets');
+    if((s.totalPullupReps||0) > 0 && (s.totalT2BReps||0) > 0) mark('combo_both');
+    if(s.primarySkill==='mixed' && PROGRAM[s.programWeek-1] && PROGRAM[s.programWeek-1].sessions[s.slot] && /alternating|EMOM/i.test(PROGRAM[s.programWeek-1].sessions[s.slot].pullup ? (PROGRAM[s.programWeek-1].sessions[s.slot].pullup.note||'') : '')) { /* handled via week7 check below */ }
+    if(s.programWeek===7 && s.slot==='A' && s.completed) mark('combo_mixedemom');
+    if(s.isTest && s.completed) mark('combo_repeat5');
+    weeksWithSessions[s.programWeek] = (weeksWithSessions[s.programWeek]||0)+1;
+  });
+  if(bestPU>=3) mark('pu_3');
+  if(bestPU>=5) mark('pu_5');
+  if(bestPU>=7) mark('pu_7');
+  if(bestPU>=10) mark('pu_10');
+  if(bestPU>=15) mark('pu_15');
+  if(bestT2B>=2) mark('t2b_2');
+  if(bestT2B>=3) mark('t2b_3');
+  if(bestT2B>=5) mark('t2b_5');
+  if(bestT2B>=7) mark('t2b_7');
+  if(bestT2B>=10) mark('t2b_10');
+  Object.keys(weeksWithSessions).forEach(w=>{ if(weeksWithSessions[w]>=3) mark('combo_3sessions'); });
+
+  // 4 consecutive weeks with >=2 completed sessions
+  let consecutive=0, maxConsec=0;
+  for(let w=1; w<=8; w++){
+    if((weeksWithSessions[w]||0) >= 2){ consecutive++; maxConsec=Math.max(maxConsec,consecutive); } else consecutive=0;
+  }
+  if(maxConsec>=4) mark('combo_4weeks');
+
+  // full program complete
+  let fullyDone = true;
+  for(let w=1;w<=8;w++){ const c = weekCompletion(w); if(!c.fullyComplete){ fullyDone=false; break; } }
+  if(fullyDone) mark('combo_program');
+
+  if(newly.length) saveData();
+  return newly;
+}
+
+/* =========================================================================
+   PROGRAM TAB
+   ========================================================================= */
+function renderProgram(){
+  const overall = programOverallPercent();
+  const curWeek = getCurrentWeekNumber();
+  let sessDoneCount = 0;
+  state.sessions.forEach(s=>{ if(s.completed) sessDoneCount++; });
+
+  let html = `<div class="card">
+    <div class="ring-wrap">
+      ${ringSVG(overall)}
+      <div>
+        <div class="ring-num">${overall}%</div>
+        <div class="ring-label">Overall program completion</div>
+        <div class="ring-label">Current week: <b>${curWeek}</b> · Sessions logged: <b>${sessDoneCount}</b></div>
+      </div>
+    </div>
+  </div>`;
+
+  PROGRAM.forEach(w=>{
+    const comp = weekCompletion(w.week);
+    const planned = 2 + (state.settings.showOptional?1:0);
+    const wkSessions = sessionsForWeek(w.week);
+    const doneCount = wkSessions.filter(s=>s.completed).length;
+    const plannedVol = plannedVolumeForWeek(w.week);
+    const completedVol = wkSessions.reduce((sum,s)=> sum + (s.totalPullupReps||0) + (s.totalT2BReps||0), 0);
+    const noteObj = state.weekNotes[w.week];
+    const recommendation = noteObj && typeof noteObj==='object' ? noteObj.recommendation : '';
+    const notesVal = noteObj && typeof noteObj==='object' ? (noteObj.notes||'') : (typeof noteObj==='string'?noteObj:'');
+
+    html += `<details class="week-card" ${w.week===curWeek?'open':''}>
+      <summary>
+        <div class="week-title-row">
+          <div class="week-num-badge">${w.week}</div>
+          <div>
+            <div style="font-weight:800;">Week ${w.week}${w.deload?' · Deload':''}</div>
+            <div style="font-size:12px;color:var(--charcoal-soft);">${escapeHtml(w.objective)}</div>
+          </div>
+        </div>
+        <span class="badge ${comp.fullyComplete?'badge-green':'badge-neutral'}">${comp.fullyComplete?'Complete':doneCount+'/'+ (2+ (w.sessions.optional?1:0)) }</span>
+      </summary>
+
+      ${sessionSummaryBlock(w, 'A', comp.aDone)}
+      ${sessionSummaryBlock(w, 'B', comp.bDone)}
+      ${state.settings.showOptional ? sessionSummaryBlock(w, 'optional', false) : ''}
+
+      <div class="progress-bar-track"><div class="progress-bar-fill" style="width:${plannedVol? Math.min(100, Math.round(completedVol/plannedVol*100)) : 0}%"></div></div>
+      <div style="font-size:11.5px;color:var(--charcoal-soft);margin-top:4px;">Volume: ${completedVol} / ~${plannedVol} reps completed</div>
+
+      ${recommendation? `<div class="warn-banner" style="margin-top:10px;">💡 ${escapeHtml(recommendation)}</div>` : ''}
+
+      <div class="field" style="margin-top:10px;">
+        <label>Weekly notes</label>
+        <textarea onchange="updateWeekNotes(${w.week}, this.value)">${escapeHtml(notesVal)}</textarea>
+      </div>
+    </details>`;
+  });
+
+  document.getElementById('tab-program').innerHTML = html;
+}
+
+function plannedVolumeForWeek(weekNum){
+  const w = PROGRAM[weekNum-1];
+  let total=0;
+  ['A','B'].forEach(slot=>{
+    const sd = w.sessions[slot];
+    if(sd.isTest) return;
+    if(sd.pullup) total += sd.pullup.sets*sd.pullup.reps;
+    if(sd.t2b) total += sd.t2b.sets*sd.t2b.reps;
+  });
+  return total;
+}
+
+function sessionSummaryBlock(w, slot, done){
+  const sd = w.sessions[slot];
+  const label = sd.label;
+  let detail = '';
+  if(sd.isTest){ detail = sd.note; }
+  else {
+    if(sd.pullup) detail += 'Pull-ups: ' + sd.pullup.note;
+    if(sd.t2b) detail += (detail?' · ':'') + 'Toes-to-bar: ' + sd.t2b.note;
+    if(slot==='optional'){
+      const parts=[];
+      if(sd.drills&&sd.drills.length) parts.push('Drills: '+sd.drills.join(', '));
+      if(sd.accessory&&sd.accessory.length) parts.push('Accessory: '+sd.accessory.join(', '));
+      detail = parts.join(' · ');
+    }
+  }
+  return `<div class="sess-block">
+    <div class="sess-head">
+      <div><b>${escapeHtml(label)}</b> ${done?'<span class="badge badge-green">Done</span>':''}</div>
+      <button class="btn btn-secondary btn-sm" onclick="loadSessionIntoToday(${w.week}, '${slot}')">${done?'Log again':'Load into Today'}</button>
+    </div>
+    <div style="font-size:12.5px;color:var(--charcoal-soft);margin-top:4px;">${escapeHtml(detail)}</div>
+  </div>`;
+}
+
+function loadSessionIntoToday(weekNum, slot){
+  startFreshSession(weekNum, slot);
+  switchTab('today');
+  showToast('Loaded Week '+weekNum+' · '+ (slot==='optional'?'Optional':'Session '+slot));
+}
+
+function updateWeekNotes(weekNum, val){
+  if(!state.weekNotes[weekNum] || typeof state.weekNotes[weekNum]==='string') state.weekNotes[weekNum] = {};
+  state.weekNotes[weekNum].notes = val;
+  saveData();
+}
+
+function ringSVG(percent){
+  const r=30, c=2*Math.PI*r;
+  const offset = c - (percent/100)*c;
+  return `<svg class="ring" viewBox="0 0 74 74">
+    <circle cx="37" cy="37" r="${r}" fill="none" stroke="var(--line)" stroke-width="8"/>
+    <circle cx="37" cy="37" r="${r}" fill="none" stroke="var(--red-mid)" stroke-width="8" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${offset}" transform="rotate(-90 37 37)"/>
+  </svg>`;
+}
+
+/* =========================================================================
+   HISTORY TAB
+   ========================================================================= */
+let historyFilter = { skill:'all', week:'all', search:'' };
+
+function renderHistory(){
+  let list = state.sessions.filter(s=>s.completed).slice().sort((a,b)=> new Date(b.date+'T'+ (b.completedAt? b.completedAt.slice(11):'00:00')) - new Date(a.date));
+
+  if(historyFilter.skill!=='all') list = list.filter(s=>s.primarySkill===historyFilter.skill);
+  if(historyFilter.week!=='all') list = list.filter(s=>String(s.programWeek)===historyFilter.week);
+  if(historyFilter.search.trim()){
+    const q = historyFilter.search.toLowerCase();
+    list = list.filter(s=> (s.generalNotes||'').toLowerCase().includes(q) || (s.improved||'').toLowerCase().includes(q) || (s.focusNext||'').toLowerCase().includes(q));
+  }
+
+  let html = `<div class="card">
+    <h2>Session History</h2>
+    <div class="search-bar">
+      <input type="text" placeholder="Search notes..." value="${escapeHtml(historyFilter.search)}" oninput="historyFilter.search=this.value; renderHistory();">
+    </div>
+    <div class="filter-row">
+      <button class="chip ${historyFilter.skill==='all'?'selected':''}" onclick="historyFilter.skill='all'; renderHistory();">All Skills</button>
+      <button class="chip ${historyFilter.skill==='pullup'?'selected':''}" onclick="historyFilter.skill='pullup'; renderHistory();">Pull-Ups</button>
+      <button class="chip ${historyFilter.skill==='t2b'?'selected':''}" onclick="historyFilter.skill='t2b'; renderHistory();">Toes-to-Bar</button>
+      <button class="chip ${historyFilter.skill==='mixed'?'selected':''}" onclick="historyFilter.skill='mixed'; renderHistory();">Mixed</button>
+    </div>
+    <div class="filter-row">
+      <button class="chip ${historyFilter.week==='all'?'selected':''}" onclick="historyFilter.week='all'; renderHistory();">All Weeks</button>
+      ${[1,2,3,4,5,6,7,8].map(w=>`<button class="chip ${historyFilter.week===String(w)?'selected':''}" onclick="historyFilter.week='${w}'; renderHistory();">Wk ${w}</button>`).join('')}
+    </div>
+  </div>`;
+
+  if(list.length===0){
+    html += `<div class="empty-state"><div class="ic">📖</div>No sessions match yet. Complete a session on the Today tab to see it here.</div>`;
+  } else {
+    list.forEach(s=>{
+      html += `<div class="card hist-card">
+        <div class="hist-top">
+          <div>
+            <b>${s.date}</b> · Week ${s.programWeek} ${s.slot==='optional'?'· Optional':'· Session '+s.slot}
+            <div style="font-size:12px;color:var(--charcoal-soft);">${escapeHtml(s.sessionLabel||'')}</div>
+          </div>
+          <span class="badge ${s.missedAny?'badge-amber':'badge-green'}">${s.missedAny?'Missed reps':'Clean'}</span>
+        </div>
+        <div class="hist-stats">
+          <span>PU reps: <b>${s.totalPullupReps||0}</b></span>
+          <span>T2B reps: <b>${s.totalT2BReps||0}</b></span>
+          <span>Best unbroken PU: <b>${s.bestUnbrokenPUCalc||0}</b></span>
+          <span>Best unbroken T2B: <b>${s.bestUnbrokenT2BCalc||0}</b></span>
+          <span>Technique: <b>${s.techniqueQuality||'-'}/5</b></span>
+          <span>Grip fatigue: <b>${s.gripFatigue||'-'}/5</b></span>
+        </div>
+        ${s.generalNotes? `<div style="font-size:12.5px;margin-top:8px;color:var(--charcoal-soft);">"${escapeHtml(truncate(s.generalNotes,90))}"</div>`:''}
+        <div class="hist-actions">
+          <button class="btn btn-secondary btn-sm" onclick="viewSession('${s.id}')">Open</button>
+          <button class="btn btn-secondary btn-sm" onclick="editSession('${s.id}')">Edit</button>
+          <button class="btn btn-secondary btn-sm" onclick="duplicateSession('${s.id}')">Duplicate</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSession('${s.id}')">Delete</button>
+        </div>
+      </div>`;
+    });
+  }
+  document.getElementById('tab-history').innerHTML = html;
+}
+
+function truncate(str,n){ return str.length>n ? str.slice(0,n)+'…' : str; }
+
+function viewSession(id){
+  const s = state.sessions.find(x=>x.id===id);
+  if(!s) return;
+  const body = `
+    <h2>${s.date} · Week ${s.programWeek} ${s.slot==='optional'?'Optional':'Session '+s.slot}</h2>
+    <p><b>${escapeHtml(s.sessionLabel||'')}</b></p>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="num">${s.totalPullupReps||0}</div><div class="lbl">Pull-up reps</div></div>
+      <div class="stat-tile"><div class="num">${s.totalT2BReps||0}</div><div class="lbl">Toes-to-bar reps</div></div>
+      <div class="stat-tile"><div class="num">${s.bestUnbrokenPUCalc||0}</div><div class="lbl">Best unbroken PU</div></div>
+      <div class="stat-tile"><div class="num">${s.bestUnbrokenT2BCalc||0}</div><div class="lbl">Best unbroken T2B</div></div>
+    </div>
+    <hr class="divider">
+    <p><b>Technique:</b> ${s.techniqueQuality||'-'}/5 &nbsp; <b>Grip fatigue:</b> ${s.gripFatigue||'-'}/5 &nbsp; <b>Discomfort:</b> ${s.discomfort||0}/5</p>
+    ${s.improved?`<p><b>What improved:</b> ${escapeHtml(s.improved)}</p>`:''}
+    ${s.focusNext?`<p><b>Focus next time:</b> ${escapeHtml(s.focusNext)}</p>`:''}
+    ${s.generalNotes?`<p><b>Notes:</b> ${escapeHtml(s.generalNotes)}</p>`:''}
+    <button class="btn btn-secondary btn-block" onclick="closeModal()">Close</button>
+  `;
+  openModal(body);
+}
+
+function editSession(id){
+  const s = state.sessions.find(x=>x.id===id);
+  if(!s) return;
+  currentSession = JSON.parse(JSON.stringify(s));
+  currentSession.completed = false;
+  switchTab('today');
+  showToast('Editing session — complete it again to save changes.');
+}
+
+function duplicateSession(id){
+  const s = state.sessions.find(x=>x.id===id);
+  if(!s) return;
+  const copy = JSON.parse(JSON.stringify(s));
+  copy.id = 'sess_'+Date.now();
+  copy.date = new Date().toISOString().slice(0,10);
+  copy.completed = false;
+  currentSession = copy;
+  switchTab('today');
+  showToast('Duplicated — review and complete to save as a new session.');
+}
+
+function deleteSession(id){
+  if(!confirm('Delete this session permanently? This cannot be undone.')) return;
+  state.sessions = state.sessions.filter(x=>x.id!==id);
+  saveData('Session deleted.');
+  renderHistory();
+}
+
+/* =========================================================================
+   ANALYTICS TAB
+   ========================================================================= */
+function renderAnalytics(){
+  const sessions = state.sessions.filter(s=>s.completed);
+  if(sessions.length===0){
+    document.getElementById('tab-analytics').innerHTML = `<div class="empty-state"><div class="ic">📊</div>Complete a few sessions to see analytics here.</div>`;
+    return;
+  }
+
+  const totalSessions = sessions.length;
+  const totalPU = sessions.reduce((a,s)=>a+(s.totalPullupReps||0),0);
+  const totalT2B = sessions.reduce((a,s)=>a+(s.totalT2BReps||0),0);
+  const prPU = Math.max(...sessions.map(s=>s.bestUnbrokenPUCalc||0));
+  const prT2B = Math.max(...sessions.map(s=>s.bestUnbrokenT2BCalc||0));
+  const streak = longestStreak(sessions);
+  const curWeek = getCurrentWeekNumber();
+  const overall = programOverallPercent();
+
+  let html = `<div class="card">
+    <h2>Summary</h2>
+    <div class="stat-grid">
+      <div class="stat-tile"><div class="num">${totalSessions}</div><div class="lbl">Total sessions</div></div>
+      <div class="stat-tile"><div class="num">${totalPU}</div><div class="lbl">Total pull-up reps</div></div>
+      <div class="stat-tile"><div class="num">${totalT2B}</div><div class="lbl">Total T2B reps</div></div>
+      <div class="stat-tile"><div class="num">${prPU}</div><div class="lbl">Pull-up PR (unbroken)</div></div>
+      <div class="stat-tile"><div class="num">${prT2B}</div><div class="lbl">T2B PR (unbroken)</div></div>
+      <div class="stat-tile"><div class="num">${streak}</div><div class="lbl">Longest streak (days)</div></div>
+      <div class="stat-tile"><div class="num">${curWeek}</div><div class="lbl">Current week</div></div>
+      <div class="stat-tile"><div class="num">${overall}%</div><div class="lbl">Program complete</div></div>
+    </div>
+  </div>`;
+
+  const weeks = [1,2,3,4,5,6,7,8];
+  const byWeek = w => sessions.filter(s=>s.programWeek===w);
+  const puByWeek = weeks.map(w=> byWeek(w).reduce((a,s)=>a+(s.totalPullupReps||0),0));
+  const t2bByWeek = weeks.map(w=> byWeek(w).reduce((a,s)=>a+(s.totalT2BReps||0),0));
+  const bestPUOverTime = runningMax(sessions.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).map(s=>s.bestUnbrokenPUCalc||0));
+  const bestT2BOverTime = runningMax(sessions.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).map(s=>s.bestUnbrokenT2BCalc||0));
+  const avgTechByWeek = weeks.map(w=>{ const arr=byWeek(w).map(s=>s.techniqueQuality||0).filter(Boolean); return arr.length?avg(arr):0; });
+  const avgGripByWeek = weeks.map(w=>{ const arr=byWeek(w).map(s=>s.gripFatigue||0).filter(Boolean); return arr.length?avg(arr):0; });
+  const sessionsPerWeek = weeks.map(w=> byWeek(w).length);
+  const plannedPct = weeks.map(w=>{
+    const vol = plannedVolumeForWeek(w);
+    const done = byWeek(w).reduce((a,s)=>a+(s.totalPullupReps||0)+(s.totalT2BReps||0),0);
+    return vol? Math.min(100, Math.round(done/vol*100)) : 0;
+  });
+  const modCounts = {};
+  sessions.forEach(s=>{
+    (s.pullupSets||[]).forEach(r=>{ if(r.mod) modCounts[r.mod]=(modCounts[r.mod]||0)+1; });
+    (s.t2bSets||[]).forEach(r=>{ if(r.mod) modCounts[r.mod]=(modCounts[r.mod]||0)+1; });
+  });
+
+  html += chartCard('Total kipping pull-up reps by week', barChart(weeks.map(w=>'W'+w), puByWeek, 'var(--red-mid)'));
+  html += chartCard('Total toes-to-bar reps by week', barChart(weeks.map(w=>'W'+w), t2bByWeek, 'var(--burgundy)'));
+  html += chartCard('Best unbroken pull-up set over time', lineChart(bestPUOverTime, 'var(--red-mid)'));
+  html += chartCard('Best unbroken toes-to-bar set over time', lineChart(bestT2BOverTime, 'var(--burgundy)'));
+  html += chartCard('Average technique rating by week (1–5)', barChart(weeks.map(w=>'W'+w), avgTechByWeek, 'var(--green)', 5));
+  html += chartCard('Average grip fatigue by week (1–5)', barChart(weeks.map(w=>'W'+w), avgGripByWeek, 'var(--amber)', 5));
+  html += chartCard('Sessions completed per week', barChart(weeks.map(w=>'W'+w), sessionsPerWeek, 'var(--red-mid)'));
+  html += chartCard('% of planned reps completed by week', barChart(weeks.map(w=>'W'+w), plannedPct, 'var(--green)', 100));
+  html += chartCard('Modification use (count)', barChart(Object.keys(modCounts), Object.values(modCounts), 'var(--burgundy)'));
+
+  const puBalanceTotal = totalPU+totalT2B || 1;
+  html += `<div class="card chart-card"><h3>Pull-up ↔ Toes-to-bar volume balance</h3>
+    <div style="display:flex;height:26px;border-radius:8px;overflow:hidden;">
+      <div style="background:var(--red-mid);width:${Math.round(totalPU/puBalanceTotal*100)}%;"></div>
+      <div style="background:var(--burgundy);width:${Math.round(totalT2B/puBalanceTotal*100)}%;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:6px;color:var(--charcoal-soft);">
+      <span>Pull-ups ${Math.round(totalPU/puBalanceTotal*100)}%</span><span>Toes-to-bar ${Math.round(totalT2B/puBalanceTotal*100)}%</span>
+    </div>
+  </div>`;
+
+  document.getElementById('tab-analytics').innerHTML = html;
+}
+
+function chartCard(title, svg){
+  return `<div class="card chart-card"><h3>${title}</h3>${svg}</div>`;
+}
+function runningMax(arr){ let m=0; return arr.map(v=>{ m=Math.max(m,v); return m; }); }
+function longestStreak(sessions){
+  const dates = [...new Set(sessions.map(s=>s.date))].sort();
+  let longest=0, cur=0, prev=null;
+  dates.forEach(d=>{
+    if(prev){
+      const diff = (new Date(d) - new Date(prev))/86400000;
+      cur = diff<=4 ? cur+1 : 1; // treat sessions within 4 days as continuing a streak
+    } else cur=1;
+    longest = Math.max(longest, cur);
+    prev = d;
+  });
+  return longest || (sessions.length?1:0);
+}
+
+function barChart(labels, values, color, fixedMax){
+  const w=300, h=140, pad=22;
+  const max = fixedMax || Math.max(1, ...values);
+  const barW = (w - pad*2) / values.length;
+  let bars = values.map((v,i)=>{
+    const bh = max? (v/max) * (h - pad - 16) : 0;
+    const x = pad + i*barW + barW*0.15;
+    const y = h - pad - bh;
+    return `<rect x="${x}" y="${y}" width="${barW*0.7}" height="${bh}" fill="${color}" rx="3"></rect>
+      <text x="${x+barW*0.35}" y="${h-6}" font-size="8" text-anchor="middle" fill="#5B4E49">${labels[i]}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}"><line x1="${pad}" y1="${h-pad}" x2="${w-6}" y2="${h-pad}" stroke="#E9DCD6"/>${bars}</svg>`;
+}
+function lineChart(values, color){
+  const w=300, h=140, pad=22;
+  if(values.length===0) return '<div class="empty-state">No data yet.</div>';
+  const max = Math.max(1, ...values);
+  const stepX = (w-pad*2)/Math.max(1,values.length-1);
+  const pts = values.map((v,i)=>{
+    const x = pad + i*stepX;
+    const y = h-pad - (v/max)*(h-pad-16);
+    return x+','+y;
+  }).join(' ');
+  const dots = values.map((v,i)=>{
+    const x = pad + i*stepX; const y = h-pad - (v/max)*(h-pad-16);
+    return `<circle cx="${x}" cy="${y}" r="2.6" fill="${color}"/>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}"><line x1="${pad}" y1="${h-pad}" x2="${w-6}" y2="${h-pad}" stroke="#E9DCD6"/>
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.4"/>${dots}</svg>`;
+}
+
+/* =========================================================================
+   MILESTONES TAB
+   ========================================================================= */
+function renderMilestones(){
+  const groups = ['Pull-Up','Toes-to-Bar','Combined'];
+  let html = '';
+  groups.forEach(g=>{
+    html += `<div class="card"><h2>${g}</h2>`;
+    MILESTONE_DEFS.filter(m=>m.group===g).forEach(m=>{
+      const done = state.milestones[m.id];
+      html += `<div class="milestone-row">
+        <div class="milestone-check ${done?'done':''}">${done?'✓':''}</div>
+        <div class="milestone-text">
+          <div class="${done?'m-title-done':''}" style="font-weight:600;">${m.label}</div>
+          ${done? `<div class="m-date">Achieved ${formatDateOnly(done)}</div>`:''}
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="toggleMilestone('${m.id}')">${done?'Undo':'Mark done'}</button>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('tab-milestones').innerHTML = html;
+}
+function formatDateOnly(iso){ return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}); }
+function toggleMilestone(id){
+  if(state.milestones[id]) delete state.milestones[id];
+  else state.milestones[id] = new Date().toISOString();
+  saveData();
+  renderMilestones();
+}
+
+/* =========================================================================
+   SETTINGS TAB
+   ========================================================================= */
+function renderSettings(){
+  const st = state.settings;
+  const html = `
+  <div class="card">
+    <h2>Profile & Program</h2>
+    <div class="field"><label>Name</label><input type="text" value="${escapeHtml(st.name)}" onchange="updateSetting('name', this.value)"></div>
+    <div class="field"><label>Program start date</label><input type="date" value="${st.startDate}" onchange="updateSetting('startDate', this.value)"></div>
+    <div class="field">
+      <label>Preferred sessions per week</label>
+      <div class="chip-group">
+        <button class="chip ${st.sessionsPerWeek===2?'selected':''}" onclick="updateSetting('sessionsPerWeek',2)">2</button>
+        <button class="chip ${st.sessionsPerWeek===3?'selected':''}" onclick="updateSetting('sessionsPerWeek',3)">3</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Current max unbroken kipping pull-ups</label><input type="number" min="0" value="${st.maxPullup}" onchange="updateSetting('maxPullup', parseInt(this.value)||0)"></div>
+      <div class="field"><label>Current max unbroken toes-to-bar</label><input type="number" min="0" value="${st.maxT2b}" onchange="updateSetting('maxT2b', parseInt(this.value)||0)"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Default rest interval (sec)</label><input type="number" min="0" value="${st.defaultRest}" onchange="updateSetting('defaultRest', parseInt(this.value)||0)"></div>
+      <div class="field"><label>Default session length (min)</label><input type="number" min="0" value="${st.defaultSessionLength}" onchange="updateSetting('defaultSessionLength', parseInt(this.value)||0)"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Preferences</h2>
+    ${toggleRow('Show optional sessions', 'showOptional', st.showOptional)}
+    ${toggleRow('Adaptive recommendations', 'adaptiveRecs', st.adaptiveRecs)}
+    ${toggleRow('Sound effects', 'soundEnabled', st.soundEnabled)}
+    ${toggleRow('Milestone celebrations', 'milestoneCelebrations', st.milestoneCelebrations)}
+  </div>
+
+  <div class="card">
+    <h2>Theme</h2>
+    <div class="chip-group">
+      ${themeChip('burgundy','Burgundy')}
+      ${themeChip('classic','Classic Red')}
+      ${themeChip('rose','Rose Red')}
+      ${themeChip('crimson','Dark Crimson')}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Data Management</h2>
+    <div class="safety-note" style="margin-bottom:12px;">Last saved: <b id="settingsLastSaved">${state.lastSaved? formatTime(state.lastSaved) : 'Never'}</b></div>
+    <button class="btn btn-primary btn-block" onclick="saveData('Saved now.')">💾 Save Now</button>
+    <div style="height:8px;"></div>
+    <button class="btn btn-secondary btn-block" onclick="exportData()">⬇️ Export Data (JSON)</button>
+    <div style="height:8px;"></div>
+    <label class="btn btn-secondary btn-block" style="cursor:pointer;">
+      ⬆️ Import Data (JSON)
+      <input type="file" accept="application/json" style="display:none;" onchange="importData(event)">
+    </label>
+    <div style="height:8px;"></div>
+    <button class="btn btn-danger btn-block" onclick="resetAllData()">🗑️ Reset All Data</button>
+  </div>
+  `;
+  document.getElementById('tab-settings').innerHTML = html;
+}
+
+function toggleRow(label, key, val){
+  return `<div class="field" style="display:flex;align-items:center;justify-content:space-between;">
+    <label style="margin:0;">${label}</label>
+    <button class="chip ${val?'selected':''}" style="min-width:56px;" onclick="updateSetting('${key}', ${!val})">${val?'On':'Off'}</button>
+  </div>`;
+}
+function themeChip(key,label){
+  return `<button class="chip ${state.settings.theme===key?'selected':''}" onclick="updateSetting('theme','${key}')">${label}</button>`;
+}
+function updateSetting(key, val){
+  state.settings[key] = val;
+  saveData();
+  renderSettings();
+}
+
+function exportData(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gymnastics-volume-builder-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded.');
+}
+
+function importData(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed || typeof parsed!=='object' || !Array.isArray(parsed.sessions) || typeof parsed.settings!=='object'){
+        showToast('⚠️ That file does not look like a valid backup.');
+        return;
+      }
+      if(!confirm('Import this backup? It will replace all current data on this device.')) return;
+      state = Object.assign(defaultState(), parsed);
+      state.settings = Object.assign(defaultSettings(), parsed.settings || {});
+      saveData('Backup imported successfully.');
+      render();
+    }catch(err){
+      showToast('⚠️ Could not read that file as valid JSON.');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+
+function resetAllData(){
+  const first = confirm('This will permanently delete ALL sessions, milestones, and settings on this device. This cannot be undone. Continue?');
+  if(!first) return;
+  const typed = prompt('Type RESET to confirm permanent deletion of all tracker data:');
+  if(typed !== 'RESET'){ showToast('Reset cancelled.'); return; }
+  localStorage.removeItem(GVB_STORAGE_KEY);
+  sessionStorage.removeItem('gvbDraft');
+  state = defaultState();
+  currentSession = null;
+  saveData('All data has been reset.');
+  switchTab('today');
+}
+
+/* =========================================================================
+   MODAL HELPERS
+   ========================================================================= */
+function openModal(html){
+  document.getElementById('modalSheet').innerHTML = html;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalOverlay').classList.remove('show'); }
+document.getElementById('modalOverlay').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+/* =========================================================================
+   UTIL
+   ========================================================================= */
+function escapeHtml(str){
+  if(str===undefined || str===null) return '';
+  return String(str).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+function init(){
+  loadData();
+  applyTheme();
+  loadDraft();
+  render();
+  // Periodic autosave safety net (in case a change handler was missed)
+  setInterval(()=>{ if(state) saveData(); }, 30000);
+  window.addEventListener('beforeunload', ()=>{ if(state) saveData(); });
+}
+init();
+</script>
+</body>
+</html>
